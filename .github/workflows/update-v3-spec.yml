@@ -41,6 +41,7 @@ jobs:
           git add assets/acquia-v3-spec.json
           git commit -m "chore: update Acquia v3 OpenAPI spec"
           git push origin "$BRANCH"
+          gh label create "chore" --color "#0075ca" --description "Chore" || true
           gh pr create \
             --title "chore: update Acquia v3 OpenAPI spec" \
             --body "Automated spec update from https://api-specs-dev.dev.cicd.acquia.io/openapi.yaml" \
