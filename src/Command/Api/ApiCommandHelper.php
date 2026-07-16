@@ -167,10 +167,31 @@ class ApiCommandHelper
         }
         /** @var \Symfony\Component\Console\Input\InputArgument|InputOption $parameterDefinition */
         foreach ($inputDefinition as $index => $parameterDefinition) {
-            if ($parameterDefinition->isArray()) {
+            if ($parameterDefinition instanceof InputArgument && $parameterDefinition->isArray()) {
                 // Move to the end of the array.
                 unset($inputDefinition[$index]);
                 $inputDefinition[] = $parameterDefinition;
+            }
+        }
+
+        // Symfony Console only allows one IS_ARRAY positional argument per command.
+        // When a request body has multiple required array properties, demote all but
+        // the last IS_ARRAY argument to a VALUE_IS_ARRAY option.
+        $arrayArgIndices = array_keys(array_filter(
+            $inputDefinition,
+            static fn ($p) => $p instanceof InputArgument && $p->isArray()
+        ));
+        if (count($arrayArgIndices) > 1) {
+            array_pop($arrayArgIndices);
+            foreach ($arrayArgIndices as $index) {
+                /** @var InputArgument $arg */
+                $arg = $inputDefinition[$index];
+                $inputDefinition[$index] = new InputOption(
+                    $arg->getName(),
+                    null,
+                    InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED,
+                    $arg->getDescription()
+                );
             }
         }
 
